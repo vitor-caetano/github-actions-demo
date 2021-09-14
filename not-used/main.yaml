@@ -27,19 +27,14 @@ jobs:
         tags: |
           ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-demo:latest
           ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-demo:${{ github.sha }}
-    - name: Setup Node.js
-      uses: actions/setup-node@v1
+    - uses: azure/k8s-set-context@v1
       with:
-        node-version: 13
-    - name: Add plugin for conventional commits
-      run: npm install conventional-changelog-conventionalcommits
-      working-directory: ./.github/workflows
-    - name: Release to GitHub
-      working-directory: ./.github/workflows
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        GIT_AUTHOR_NAME: vitor-caetano  
-        GIT_AUTHOR_EMAIL: vitor.e.caetano@gmail.com
-        GIT_COMMITTER_NAME: vitor-caetano
-        GIT_COMMITTER_EMAIL: vitor.e.caetano@gmail.com
-      run: npx semantic-release
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+    - name: Deploy the app
+      run: |
+        cd kustomize/overlays/production
+        kustomize edit set image ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-demo=${{ secrets.DOCKERHUB_USERNAME }}/github-actions-demo:$GITHUB_SHA
+        kustomize build | kubectl apply --filename -
+        kubectl --namespace production rollout status deployment github-actions-demo
+ 
