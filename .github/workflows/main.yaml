@@ -27,14 +27,14 @@ jobs:
     - name: Add plugin for conventional commits
       run: npm install conventional-changelog-conventionalcommits
       working-directory: ./.github/workflows
-    - name: Get Next Version
-      id: get-next-version
+    - name: Get Next Release Version
+      id: get-next-release-version
       working-directory: ./.github/workflows
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: echo "::set-output name=next-version::$(npx semantic-release --dry-run | grep 'The next release version is'"
+      run: echo "::set-output name=next-version::$(npx semantic-release --dry-run | grep 'The next release version is' | awk '{print $6}')"
     - name: Show Next Release Version
-      run: echo "The next version is ${{ steps.get-next-version.outputs.next-version }}"
+      run: echo "The next version is ${{ steps.get-next-release-version.outputs.next-version }}"
     - name: Build and push container image
       uses: docker/build-push-action@v2
       with:
