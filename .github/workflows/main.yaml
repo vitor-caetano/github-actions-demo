@@ -42,6 +42,7 @@ jobs:
         tags: |
           ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-demo:latest
           ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-demo:${{ github.sha }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-demo:${{ steps.get-next-release-version.outputs.next-version }}
     - name: Release to GitHub
       working-directory: ./.github/workflows
       env:
